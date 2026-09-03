@@ -39,7 +39,7 @@
           </svg>
         </div>
         <h3 class="text-lg font-bold text-slate-800 mb-2">Formulario de Refrigerio Cerrado</h3>
-        <p class="text-sm text-slate-500">Este formulario solo funciona de <strong>10:09 AM a 7:00 PM</strong>.</p>
+        <p id="closedTimeMsg" class="text-sm text-slate-500">Este formulario solo funciona de <strong>10:09</strong> a <strong>19:00</strong>.</p>
         <p class="text-xs text-slate-400 mt-2">Horario de Colombia (UTC-5)</p>
       </div>
 
@@ -204,20 +204,37 @@
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvenRjaHVicm5qbGN4cHpiaGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDM1NjQsImV4cCI6MjEwMzg3OTU2NH0._dlpaCg91GX--eoBkC9kFnM_CJbmgYNQ7TapBrUHpLo';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     const TIPO_COMIDA_ID = 3;
-    const HORA_MIN = 609;
-    const HORA_MAX = 1140;
+    const TIPO = 'refrigerio';
+
+    let config = { activo: true, hora_inicio: '10:09', hora_fin: '19:00' };
+
+    function timeToMinutes(timeStr) {
+      const [h, m] = timeStr.split(':').map(Number);
+      return h * 60 + m;
+    }
 
     function isOpen() {
+      if (!config.activo) return false;
       const now = new Date();
       const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
       const totalMin = colombiaTime.getHours() * 60 + colombiaTime.getMinutes();
-      return totalMin >= HORA_MIN && totalMin <= HORA_MAX;
+      return totalMin >= timeToMinutes(config.hora_inicio) && totalMin <= timeToMinutes(config.hora_fin);
+    }
+
+    async function loadConfig() {
+      const { data } = await db.from('form_config').select('*').eq('tipo', TIPO).single();
+      if (data) config = data;
+      checkTime();
     }
 
     function checkTime() {
       if (!isOpen()) {
         document.getElementById('confirmForm').classList.add('hidden');
         document.getElementById('closedMsg').classList.remove('hidden');
+        const msg = !config.activo
+          ? 'Este formulario ha sido cerrado por el administrador.'
+          : `Este formulario solo funciona de <strong>${config.hora_inicio}</strong> a <strong>${config.hora_fin}</strong>.`;
+        document.getElementById('closedTimeMsg').innerHTML = msg;
       }
     }
 
@@ -236,7 +253,7 @@
     document.getElementById('confirmForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!isOpen()) {
-        showError('El formulario de refrigerio esta cerrado. Horario: 10:09 AM - 7:00 PM.');
+        showError(!config.activo ? 'El formulario ha sido cerrado por el administrador.' : 'El formulario de refrigerio esta cerrado fuera de horario.');
         return;
       }
       const btn = document.getElementById('submitBtn');
@@ -387,7 +404,7 @@
       document.getElementById('vrFecha').textContent = data.fecha || '';
     });
 
-    checkTime();
+    loadConfig();
     loadCarreras();
   </script>
 </body>
