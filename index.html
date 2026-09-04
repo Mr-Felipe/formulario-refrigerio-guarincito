@@ -239,7 +239,16 @@
     }
 
     async function loadCarreras() {
-      const { data, error } = await db.from('carreras').select('id, nombre, jornada').eq('activo', true).order('nombre');
+      // Get carrera_ids that have servicio_id = 3 (refrigerio) in carrera_servicio
+      const { data: servicios } = await db.from('carrera_servicio').select('carrera_id').eq('servicio_id', 3).eq('activo', true);
+      const carreraIds = [...new Set((servicios || []).map(s => s.carrera_id))];
+
+      if (carreraIds.length === 0) {
+        console.warn('No hay carreras configuradas para refrigerio');
+        return;
+      }
+
+      const { data, error } = await db.from('carreras').select('id, nombre, jornada').in('id', carreraIds).eq('activo', true).order('nombre');
       if (error) { console.error(error); return; }
       const select = document.getElementById('carrera');
       data.forEach(c => {
