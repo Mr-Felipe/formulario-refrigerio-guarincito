@@ -323,13 +323,8 @@
         .single();
 
       let motivo_alerta = null;
-      let carrera_real = null;
-      if (beneficiario) {
-        const { data: carreraPadron } = await db.from('carreras').select('nombre').eq('id', beneficiario.carrera_id).single();
-        carrera_real = carreraPadron?.nombre || null;
-        if (beneficiario.carrera_id !== carrera_id) {
-          motivo_alerta = 'carrera_form_vs_padron';
-        }
+      if (beneficiario && beneficiario.carrera_id !== carrera_id) {
+        motivo_alerta = 'carrera_form_vs_padron';
       }
 
       const now = new Date();
@@ -345,8 +340,7 @@
         origen: 'WEB_FORM',
         nombre_en_form: nombre,
         beneficiario_id: beneficiario?.id || null,
-        motivo_alerta,
-        carrera_real
+        motivo_alerta
       }).select('id').single();
 
       if (error) {
