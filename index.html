@@ -314,34 +314,12 @@
         return;
       }
 
-      const { data: carreras } = await db.from('carreras').select('nombre').eq('id', carrera_id).single();
-      const carrera_nombre = carreras?.nombre || '';
-
-      const { data: beneficiario } = await db.from('beneficiarios')
-        .select('id, carrera_id')
-        .eq('codigo_id', codigo_id)
-        .single();
-
-      let motivo_alerta = null;
-      if (beneficiario && beneficiario.carrera_id !== carrera_id) {
-        motivo_alerta = 'carrera_form_vs_padron';
-      }
-
-      const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const fecha = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
-      const { data, error } = await db.from('confirmaciones').insert({
-        codigo_id,
-        tipo_comida_id: TIPO_COMIDA_ID,
-        fecha,
-        carrera_en_form: carrera_nombre,
-        es_beneficiario_valido: true,
-        origen: 'WEB_FORM',
-        nombre_en_form: nombre,
-        beneficiario_id: beneficiario?.id || null,
-        motivo_alerta
-      }).select('id').single();
+      const { data, error } = await db.rpc('fn_insert_confirmacion_web', {
+        p_codigo_id: codigo_id,
+        p_carrera_id: carrera_id,
+        p_nombre: nombre,
+        p_tipo_comida_id: TIPO_COMIDA_ID
+      });
 
       if (error) {
         console.error(error);
@@ -350,21 +328,21 @@
         return;
       }
 
-      let confirmId = data?.id;
-      if (!confirmId) {
-        const { data: fallback } = await db.from('confirmaciones')
-          .select('id').eq('codigo_id', codigo_id).eq('fecha', fecha).eq('origen', 'WEB_FORM')
-          .order('id', { ascending: false }).limit(1).single();
-        confirmId = fallback?.id;
-      }
-
-      if (!confirmId) {
+      const result = data?.[0];
+      if (!result?.confirmacion_id) {
         showError('Registro enviado pero no se pudo obtener el codigo. Consulta con el recepcionista.');
         resetBtn();
         return;
       }
 
-      showSuccess(confirmId, codigo_id, nombre, carrera_nombre, fecha);
+      if (result.motivo_alerta === 'no_en_padron') {
+        showError('Tu codigo no esta registrado en el padron de beneficiarios.');
+        resetBtn();
+        return;
+      }
+
+      const fecha = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+      showSuccess(result.confirmacion_id, codigo_id, nombre, '', fecha);
       resetBtn();
     });
 
