@@ -218,7 +218,14 @@
       const now = new Date();
       const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
       const totalMin = colombiaTime.getHours() * 60 + colombiaTime.getMinutes();
-      return totalMin >= timeToMinutes(config.hora_inicio) && totalMin <= timeToMinutes(config.hora_fin);
+      const inicio = timeToMinutes(config.hora_inicio);
+      const fin = timeToMinutes(config.hora_fin);
+
+      // Handle crossing midnight (e.g. 19:41 to 10:08)
+      if (inicio > fin) {
+        return totalMin >= inicio || totalMin <= fin;
+      }
+      return totalMin >= inicio && totalMin <= fin;
     }
 
     async function loadConfig() {
