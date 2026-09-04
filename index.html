@@ -12,6 +12,13 @@
     .fade-in { animation: fadeIn 0.3s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .code-glow { text-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px; cursor: pointer; }
+    select:hover { border-color: #3b82f6; background-color: #eff6ff; }
+    select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); background-color: #eff6ff; }
+    select option { padding: 12px 16px; font-size: 14px; font-weight: 500; background: white; color: #334155; border-bottom: 1px solid #f1f5f9; }
+    select option:hover { background: #dbeafe; color: #1e40af; }
+    select option:first-child { color: #94a3b8; font-weight: 400; }
+    select option:not(:first-child):hover { background: #bfdbfe; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 min-h-screen flex items-center justify-center p-4">
@@ -52,8 +59,8 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Codigo ID (5 digitos)</label>
-          <input type="text" id="codigo" required maxlength="5" pattern="[0-9]{5}" placeholder="Ej: 79794"
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Codigo ID (4-5 digitos)</label>
+          <input type="text" id="codigo" required maxlength="5" pattern="[0-9]{4,5}" placeholder="Ej: 79794"
             class="w-full py-2.5 px-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-bold text-slate-700 placeholder:text-slate-300"
             inputmode="numeric">
         </div>
@@ -291,6 +298,16 @@
       const { data: carreras } = await db.from('carreras').select('nombre').eq('id', carrera_id).single();
       const carrera_nombre = carreras?.nombre || '';
 
+      const { data: beneficiario } = await db.from('beneficiarios')
+        .select('id, carrera_id')
+        .eq('codigo_id', codigo_id)
+        .single();
+
+      let motivo_alerta = null;
+      if (beneficiario && beneficiario.carrera_id !== carrera_id) {
+        motivo_alerta = 'Carrera del formulario no coincide con el padrón';
+      }
+
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
       const fecha = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -302,7 +319,9 @@
         carrera_en_form: carrera_nombre,
         es_beneficiario_valido: true,
         origen: 'WEB_FORM',
-        nombre_en_form: nombre
+        nombre_en_form: nombre,
+        beneficiario_id: beneficiario?.id || null,
+        motivo_alerta
       }).select('id').single();
 
       if (error) {
