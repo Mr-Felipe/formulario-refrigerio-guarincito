@@ -210,15 +210,30 @@
   <div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
     <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden fade-in">
       <div class="bg-gradient-to-r from-red-500 to-red-600 p-5 text-center">
-        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
           <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
           </svg>
         </div>
-        <h2 class="text-lg font-bold text-white">Error</h2>
+        <h2 class="text-xl font-extrabold text-white">Error</h2>
       </div>
-      <div class="p-6 text-center">
-        <p id="errorModalMsg" class="text-sm text-slate-600 mb-5"></p>
+      <div class="p-6">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </div>
+          <p id="errorModalMsg" class="text-base font-semibold text-slate-800"></p>
+        </div>
+        <div class="flex items-start gap-3 mb-5 bg-amber-50 rounded-xl p-3">
+          <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <p class="text-sm font-medium text-amber-700">Verifique que digito bien su codigo de estudiante (4-5 digitos).</p>
+        </div>
         <button onclick="closeErrorModal()"
           class="w-full py-3 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-sm rounded-xl transition-all cursor-pointer">
           Cerrar
