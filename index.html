@@ -260,6 +260,8 @@
       if (!config.activo) return false;
       const now = new Date();
       const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+      const dayOfWeek = colombiaTime.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) return false;
       const totalMin = colombiaTime.getHours() * 60 + colombiaTime.getMinutes();
       const inicio = timeToMinutes(config.hora_inicio);
       const fin = timeToMinutes(config.hora_fin);
