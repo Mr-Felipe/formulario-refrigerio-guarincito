@@ -46,7 +46,8 @@
           </svg>
         </div>
         <h3 class="text-lg font-bold text-slate-800 mb-2">Formulario de Refrigerio Cerrado</h3>
-        <p id="closedTimeMsg" class="text-sm text-slate-500">Este formulario solo funciona de <strong>10:09</strong> a <strong>19:00</strong>.</p>
+        <p id="closedTimeMsg" class="text-sm text-slate-500">Este formulario solo funciona de lunes a viernes</p>
+        <p id="closedSchedule" class="text-lg font-bold text-slate-800 mt-1">10:09 - 19:00</p>
         <p class="text-xs text-slate-400 mt-2">Horario de Colombia (UTC-5)</p>
       </div>
 
@@ -285,8 +286,9 @@
         document.getElementById('closedMsg').classList.remove('hidden');
         const msg = !config.activo
           ? 'Este formulario ha sido cerrado por el administrador.'
-          : `Este formulario solo funciona de <strong>${config.hora_inicio}</strong> a <strong>${config.hora_fin}</strong>.`;
+          : 'Este formulario solo funciona de lunes a viernes';
         document.getElementById('closedTimeMsg').innerHTML = msg;
+        document.getElementById('closedSchedule').textContent = `${config.hora_inicio} - ${config.hora_fin}`;
       }
     }
 
