@@ -281,13 +281,18 @@
     }
 
     function checkTime() {
-      if (!checkOpen()) {
-        document.getElementById('confirmForm').classList.add('hidden');
-        document.getElementById('closedMsg').classList.remove('hidden');
-        const msg = !config.activo
+      const form = document.getElementById('confirmForm');
+      const msg = document.getElementById('closedMsg');
+      if (checkOpen()) {
+        form.classList.remove('hidden');
+        msg.classList.add('hidden');
+      } else {
+        form.classList.add('hidden');
+        msg.classList.remove('hidden');
+        const msgText = !config.activo
           ? 'Este formulario ha sido cerrado por el administrador.'
           : 'Este formulario solo funciona de lunes a viernes';
-        document.getElementById('closedTimeMsg').innerHTML = msg;
+        document.getElementById('closedTimeMsg').innerHTML = msgText;
         document.getElementById('closedSchedule').textContent = `${config.hora_inicio} - ${config.hora_fin}`;
       }
     }
