@@ -329,14 +329,15 @@
       }
 
       const result = data?.[0];
-      if (!result?.confirmacion_id) {
-        showError('Registro enviado pero no se pudo obtener el codigo. Consulta con el recepcionista.');
+
+      if (result?.motivo_alerta === 'no_en_padron') {
+        showError('Tu codigo no esta registrado en el padron de beneficiarios.');
         resetBtn();
         return;
       }
 
-      if (result.motivo_alerta === 'no_en_padron') {
-        showError('Tu codigo no esta registrado en el padron de beneficiarios.');
+      if (!result?.confirmacion_id) {
+        showError('Registro enviado pero no se pudo obtener el codigo. Consulta con el recepcionista.');
         resetBtn();
         return;
       }
