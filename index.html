@@ -70,7 +70,6 @@
           <input type="text" id="nombre" required placeholder="Tu nombre como aparece en el padron"
             class="w-full py-2.5 px-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700 placeholder:text-slate-300">
         </div>
-        <div id="errorMsg" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl"></div>
         <button type="submit" id="submitBtn"
           class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,6 +206,27 @@
     </div>
   </div>
 
+  <!-- ERROR MODAL -->
+  <div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden fade-in">
+      <div class="bg-gradient-to-r from-red-500 to-red-600 p-5 text-center">
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-white">Error</h2>
+      </div>
+      <div class="p-6 text-center">
+        <p id="errorModalMsg" class="text-sm text-slate-600 mb-5"></p>
+        <button onclick="closeErrorModal()"
+          class="w-full py-3 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-sm rounded-xl transition-all cursor-pointer">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://doztchubrnjlcxpzbhgt.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvenRjaHVicm5qbGN4cHpiaGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDM1NjQsImV4cCI6MjEwMzg3OTU2NH0._dlpaCg91GX--eoBkC9kFnM_CJbmgYNQ7TapBrUHpLo';
@@ -289,8 +309,6 @@
         return;
       }
       const btn = document.getElementById('submitBtn');
-      const errorDiv = document.getElementById('errorMsg');
-      errorDiv.classList.add('hidden');
       btn.disabled = true;
       btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Enviando...';
 
@@ -321,13 +339,13 @@
       const result = data?.[0];
 
       if (result?.motivo_alerta === 'no_en_padron') {
-        showError('Tu codigo no esta registrado en el padron de beneficiarios.');
+        showError('Su codigo no fue encontrado en el padron de beneficiarios. Verifique que digito correctamente su ID.');
         resetBtn();
         return;
       }
 
       if (!result?.confirmacion_id) {
-        showError('Registro enviado pero no se pudo obtener el codigo. Consulta con el recepcionista.');
+        showError('No se pudo completar el registro. Verifique su codigo e intente de nuevo.');
         resetBtn();
         return;
       }
@@ -338,9 +356,15 @@
     });
 
     function showError(msg) {
-      const div = document.getElementById('errorMsg');
-      div.textContent = msg;
-      div.classList.remove('hidden');
+      document.getElementById('errorModalMsg').textContent = msg;
+      const modal = document.getElementById('errorModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    function closeErrorModal() {
+      const modal = document.getElementById('errorModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
     function resetBtn() {
