@@ -257,7 +257,7 @@
       return h * 60 + m;
     }
 
-    function isOpen() {
+    function checkOpen() {
       if (!config.activo) return false;
       const now = new Date();
       const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
@@ -281,7 +281,7 @@
     }
 
     function checkTime() {
-      if (!isOpen()) {
+      if (!checkOpen()) {
         document.getElementById('confirmForm').classList.add('hidden');
         document.getElementById('closedMsg').classList.remove('hidden');
         const msg = !config.activo
@@ -323,7 +323,7 @@
 
     document.getElementById('confirmForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!isOpen()) {
+      if (!checkOpen()) {
         showError(!config.activo ? 'El formulario ha sido cerrado por el administrador.' : 'El formulario de refrigerio esta cerrado fuera de horario.');
         return;
       }
