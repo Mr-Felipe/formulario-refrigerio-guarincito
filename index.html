@@ -298,7 +298,6 @@
     }
 
     async function loadCarreras() {
-      // Get carrera_ids that have servicio_id = 3 (refrigerio) in carrera_servicio
       const { data: servicios } = await db.from('carrera_servicio').select('carrera_id').eq('servicio_id', 3).eq('activo', true);
       const carreraIds = [...new Set((servicios || []).map(s => s.carrera_id))];
 
@@ -310,14 +309,19 @@
       const { data, error } = await db.from('carreras').select('id, nombre, jornada').in('id', carreraIds).eq('activo', true).order('nombre');
       if (error) { console.error(error); return; }
 
+      const { data: horarios } = await db.from('carrera_horario').select('carrera_id, hora_cierre, activo').eq('form_tipo', 'refrigerio');
+
       const now = new Date();
       const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
       const totalMin = colombiaTime.getHours() * 60 + colombiaTime.getMinutes();
-      const [cierreH, cierreM] = (config.hora_cierre_trabajo_social || '17:30').split(':').map(Number);
-      const cierreTS = cierreH * 60 + cierreM;
 
       const select = document.getElementById('carrera');
-      data.filter(c => c.nombre !== 'TRABAJO SOCIAL' || totalMin <= cierreTS).forEach(c => {
+      data.filter(c => {
+        const horario = horarios?.find(h => h.carrera_id === c.id && h.activo);
+        if (!horario) return true;
+        const [h, m] = horario.hora_cierre.split(':').map(Number);
+        return totalMin <= h * 60 + m;
+      }).forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id;
         opt.textContent = `${c.nombre} (${c.jornada})`;
