@@ -309,8 +309,14 @@
 
       const { data, error } = await db.from('carreras').select('id, nombre, jornada').in('id', carreraIds).eq('activo', true).order('nombre');
       if (error) { console.error(error); return; }
+
+      const now = new Date();
+      const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+      const totalMin = colombiaTime.getHours() * 60 + colombiaTime.getMinutes();
+      const cierreTS = 17 * 60 + 30;
+
       const select = document.getElementById('carrera');
-      data.forEach(c => {
+      data.filter(c => c.nombre !== 'TRABAJO SOCIAL' || totalMin <= cierreTS).forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id;
         opt.textContent = `${c.nombre} (${c.jornada})`;
@@ -365,6 +371,12 @@
 
       if (result?.motivo_alerta === 'no_en_padron') {
         showError('Su codigo no fue encontrado en el padron de beneficiarios. Verifique que digito correctamente su ID.');
+        resetBtn();
+        return;
+      }
+
+      if (result?.motivo_alerta === 'carrera_form_vs_padron') {
+        showError('La carrera que selecciono no coincide con su carrera en el padron. Verifique y seleccione la carrera correcta.');
         resetBtn();
         return;
       }
