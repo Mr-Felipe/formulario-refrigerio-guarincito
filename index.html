@@ -313,7 +313,8 @@
       const now = new Date();
       const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
       const totalMin = colombiaTime.getHours() * 60 + colombiaTime.getMinutes();
-      const cierreTS = 17 * 60 + 30;
+      const [cierreH, cierreM] = (config.hora_cierre_trabajo_social || '17:30').split(':').map(Number);
+      const cierreTS = cierreH * 60 + cierreM;
 
       const select = document.getElementById('carrera');
       data.filter(c => c.nombre !== 'TRABAJO SOCIAL' || totalMin <= cierreTS).forEach(c => {
