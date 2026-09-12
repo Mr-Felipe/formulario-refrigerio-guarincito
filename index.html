@@ -397,7 +397,7 @@
       }
 
       const fecha = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
-      const carreraNombre = document.getElementById('carrera').selectedOptions[0]?.text || ''; showSuccess(result.confirmacion_id, codigo_id, nombre, carreraNombre, fecha);
+      showSuccess(result.confirmacion_id, codigo_id, nombre, '', fecha);
       resetBtn();
     });
 
