@@ -343,6 +343,7 @@
 
     document.getElementById('confirmForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      await loadConfig();
       if (!checkOpen()) {
         showError(!config.activo ? 'El formulario ha sido cerrado por el administrador.' : 'El formulario de refrigerio esta cerrado fuera de horario.');
         return;
